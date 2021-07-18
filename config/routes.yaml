@@ -1,0 +1,36 @@
+#index:
+#    path: /
+#    controller: App\Controller\DefaultController::index
+
+# USER CONTROLLER ROUTES
+
+user:
+  path: /user
+  controller: App\Controller\UserController::index
+  methods: [POST]
+
+create:
+  path: /create
+  controller: App\Controller\UserController::create
+  methods: [POST]
+
+login:
+  path: /login
+  controller: App\Controller\UserController::login
+  methods: [POST]
+
+user_edit:
+  path: /user/edit
+  controller: App\Controller\UserController::edit
+  methods: [POST]
+
+# PROJECT CONTROLLER ROUTES
+
+project:
+  path: /project
+  controller: App\Controller\ProjectController::index
+
+video_new:
+  path: /video/new
+  controller: App\Controller\ProjectController::newProject
+  methods: [POST]
