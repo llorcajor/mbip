@@ -34,3 +34,13 @@ video_new:
   path: /video/new
   controller: App\Controller\ProjectController::newProject
   methods: [POST]
+
+video_list:
+  path: /video/list
+  controller: App\Controller\ProjectController::projects
+  methods: [GET]
+
+video_detail:
+  path: /video/detail/{id}
+  controller: App\Controller\ProjectController::project
+  methods: [GET]

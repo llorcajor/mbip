@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Category;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\User;
@@ -13,6 +14,11 @@ use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Validation;
 use App\Services\JwtAuth;
 use Doctrine\ORM\Mapping\PostRemove;
+use Doctrine\ORM\EntityManager;
+
+
+use Knp\Component\Pager\Pagination\PaginationInterface;
+use Knp\Component\Pager\PaginatorInterface;
 
 class ProjectController extends AbstractController
 {
@@ -79,20 +85,26 @@ class ProjectController extends AbstractController
                     // Guardar en la bbdd
 
                     $em = $this->getDoctrine()->getManager();
-                    $user = $this->getDoctrine()->getRepository(User::class)->findBy([
+                    $user = new User();
+                    $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
                         'id' => $user_id
                     ]);
+                    $category = new Category();
+                    $category = $this->getDoctrine()->getRepository(Category::class)->findOneBy([
+                        'id' => 1
+                    ]);
+
 
 
                     $project = new Project();
                     $project->setUser($user);
                     $project->setName($title);
                     $project->setDescription($description);
+                    $project->setCategory($category);
 
                     $createdAt = new \DateTime('now');
                     $project->setCreatedAt($createdAt);
-                    var_dump($project);
-                    die();
+
 
 
 
@@ -111,6 +123,96 @@ class ProjectController extends AbstractController
 
 
         // Devolver respuesta
+
+        return $this->resjson($data);
+    }
+
+    public function projects(Request $request, JwtAuth $jwt_auth, PaginatorInterface $paginator)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'No se pueden listar los proyectos'
+        ];
+        // Reecoger la cabecera de autenticación
+        $token = $request->headers->get('Authorization');
+
+        // Comprobar token
+        $authCheck = $jwt_auth->checkToken($token);
+
+        if ($authCheck) {
+            // Conseguir identidad usuario
+            $identity = $jwt_auth->checkToken($token, true);
+
+            $em = $this->getDoctrine()->getManager();
+
+            // Configurar el bundle de paginacion
+            $dql = "SELECT v FROM App\Entity\Project v WHERE v.user = {$identity->sub} ORDER BY v.id DESC";
+            $query = $em->createQuery($dql);
+
+
+
+
+
+            // Hacer consulta paginacion
+            $page = $request->query->getInt('page', 1);
+            $items_per_page = 5;
+
+            // recoger el parametro page de la url
+
+            // Invocar paginacion
+            $pagination = $paginator->paginate($query, $page, $items_per_page);
+            $total = $pagination->getTotalItemCount();
+            // Preparar array para enviar
+            $data = [
+                'status' => 'successs',
+                'code' => 200,
+                'total_items_count' => $total,
+                'page_actual' => $page,
+                'items_per_page' => $items_per_page,
+                'total_page' => ceil($total / $items_per_page),
+                'projects' => $pagination,
+                'user_id' => $identity->sub
+
+            ];
+        }
+
+
+
+        return $this->resjson($data);
+    }
+
+
+    public function project(Request $request, JwtAuth $jwt_auth, $id = null)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Video no encontrado',
+            'id' => $id
+        ];
+        // Sacar token
+        $token = $request->headers->get('Authorization');
+        $authCheck = $jwt_auth->checkToken($token);
+        if ($authCheck) {
+            // Sacar identidad
+            $identity = $jwt_auth->checkToken($token, true);
+            // Sacar el proyecto
+            $project = $this->getDoctrine()->getRepository(Project::class)->findOneBy([
+                'id' => $id,
+                'user' => $identity->sub
+            ]);
+            // Comprobar si el proyecto existe y es propiedad del usuario
+            if ($project && is_object($project)) {
+                $data = [
+                    'status' => 'success',
+                    'code' => 200,
+                    'project' => $project
+                ];
+            }
+        }
+
+        // Devolver una respuesta
 
         return $this->resjson($data);
     }

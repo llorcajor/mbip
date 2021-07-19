@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
 
 /**
  * Projects
@@ -10,7 +11,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="projects", indexes={@ORM\Index(name="fk_project_category", columns={"category_id"}), @ORM\Index(name="fk_project_user", columns={"user_id"})})
  * @ORM\Entity
  */
-class Project
+class Project implements \JsonSerializable
 {
     /**
      * @var int
@@ -50,7 +51,7 @@ class Project
     private $createdAt = 'CURRENT_TIMESTAMP';
 
     /**
-     * @var \Users
+     * @var \App\Entity\User
      *
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumns({
@@ -60,7 +61,7 @@ class Project
     private $user;
 
     /**
-     * @var \Categories
+     * @var \App\Entity\Category
      *
      * @ORM\ManyToOne(targetEntity="Category")
      * @ORM\JoinColumns({
@@ -146,5 +147,11 @@ class Project
         return $this;
     }
 
-
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name
+        ];
+    }
 }
