@@ -10,7 +10,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="categories")
  * @ORM\Entity
  */
-class Category
+class Category implements \JsonSerializable
 {
     /**
      * @var int
@@ -83,5 +83,12 @@ class Category
         return $this;
     }
 
-
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->name,
+            'color' => $this->color
+        ];
+    }
 }

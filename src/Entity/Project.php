@@ -151,7 +151,10 @@ class Project implements \JsonSerializable
     {
         return [
             'id' => $this->id,
-            'name' => $this->name
+            'name' => $this->name,
+            'description' => $this->description,
+            'imageUrl' => $this->image,
+            'category' => $this->category
         ];
     }
 }

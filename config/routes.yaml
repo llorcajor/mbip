@@ -30,17 +30,27 @@ project:
   path: /project
   controller: App\Controller\ProjectController::index
 
-video_new:
-  path: /video/new
+project_new:
+  path: /project/new
   controller: App\Controller\ProjectController::newProject
   methods: [POST]
 
-video_list:
-  path: /video/list
+project_edit:
+  path: /project/edit/{id}
+  controller: App\Controller\ProjectController::newProject
+  methods: [PUT]
+
+project_list:
+  path: /project/list
   controller: App\Controller\ProjectController::projects
   methods: [GET]
 
-video_detail:
-  path: /video/detail/{id}
+project_detail:
+  path: /project/detail/{id}
   controller: App\Controller\ProjectController::project
   methods: [GET]
+
+project_remove:
+  path: /project/remove/{id}
+  controller: App\Controller\ProjectController::remove
+  methods: [DELETE]

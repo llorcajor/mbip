@@ -51,7 +51,7 @@ class ProjectController extends AbstractController
         return $response;
     }
 
-    public function newProject(Request $request, JwtAuth $jwt_auth)
+    public function newProject(Request $request, JwtAuth $jwt_auth, $id = null)
     {
         $data = [
             'status' => 'error',
@@ -94,29 +94,50 @@ class ProjectController extends AbstractController
                         'id' => 1
                     ]);
 
+                    if ($id == null) {
+                        $project = new Project();
+                        $project->setUser($user);
+                        $project->setName($title);
+                        $project->setDescription($description);
+                        $project->setCategory($category);
+
+                        $createdAt = new \DateTime('now');
+                        $project->setCreatedAt($createdAt);
 
 
-                    $project = new Project();
-                    $project->setUser($user);
-                    $project->setName($title);
-                    $project->setDescription($description);
-                    $project->setCategory($category);
-
-                    $createdAt = new \DateTime('now');
-                    $project->setCreatedAt($createdAt);
 
 
+                        $em->persist($project);
+                        $em->flush();
 
+                        $data = [
+                            'status' => 'success',
+                            'code' => 200,
+                            'message' => 'El proyecto se ha guardado',
+                            'proyecto' => $project
+                        ];
+                    } else {
 
-                    $em->persist($project);
-                    $em->flush();
+                        $project = $this->getDoctrine()->getRepository(Project::class)->findOneBy([
+                            'id' => $id,
+                            'user' => $identity->sub
+                        ]);
 
-                    $data = [
-                        'status' => 'success',
-                        'code' => 200,
-                        'message' => 'El proyecto se ha guardado',
-                        'proyecto' => $project
-                    ];
+                        if ($project && is_object($project)) {
+                            $project->setName($title);
+                            $project->setDescription($description);
+
+                            $em->persist($project);
+                            $em->flush();
+
+                            $data = [
+                                'status' => 'success',
+                                'code' => 200,
+                                'message' => 'El proyecto se ha actualizado',
+                                'proyecto' => $project
+                            ];
+                        }
+                    }
                 }
             }
         }
@@ -213,6 +234,45 @@ class ProjectController extends AbstractController
         }
 
         // Devolver una respuesta
+
+        return $this->resjson($data);
+    }
+
+    public function remove(Request $request, JwtAuth $jwt_auth, $id = null)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Proyecto no encontrado'
+        ];
+
+        $token = $request->headers->get('Authorization');
+
+        $authCheck = $jwt_auth->checkToken($token);
+
+        if ($authCheck) {
+            $identity = $jwt_auth->checkToken($token, true);
+
+            $doctrine = $this->getDoctrine();
+            $em = $doctrine->getManager();
+            $project = $doctrine->getRepository(Project::class)->findOneBy([
+                'id' => $id
+            ]);
+
+            if ($project && is_object($project) && $identity->sub == $project->getUser()->getId()) {
+                $em->remove($project);
+                $em->flush();
+
+                $data = [
+                    'status' => 'success',
+                    'code' => 200,
+                    'message' => 'Proyecto borrado'
+                ];
+            }
+        }
+
+
+
 
         return $this->resjson($data);
     }
