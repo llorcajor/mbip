@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\User;
+use App\Entity\Project;
 
 /**
  * Follows
@@ -10,7 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Table(name="follows", indexes={@ORM\Index(name="fk_follow_project", columns={"project_id"}), @ORM\Index(name="fk_follow_user", columns={"user_id"})})
  * @ORM\Entity
  */
-class Follow
+class Follow implements \JsonSerializable
 {
     /**
      * @var int
@@ -89,5 +91,12 @@ class Follow
         return $this;
     }
 
-
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->id,
+            'project' => $this->project,
+            'user' => $this->user
+        ];
+    }
 }

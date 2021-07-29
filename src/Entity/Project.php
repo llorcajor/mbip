@@ -6,7 +6,7 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\User;
 
 /**
- * Projects
+ * Project
  *
  * @ORM\Table(name="projects", indexes={@ORM\Index(name="fk_project_category", columns={"category_id"}), @ORM\Index(name="fk_project_user", columns={"user_id"})})
  * @ORM\Entity
@@ -154,7 +154,8 @@ class Project implements \JsonSerializable
             'name' => $this->name,
             'description' => $this->description,
             'imageUrl' => $this->image,
-            'category' => $this->category
+            'category' => $this->category,
+            'user' => $this->user
         ];
     }
 }

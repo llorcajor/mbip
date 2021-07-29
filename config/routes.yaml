@@ -22,7 +22,7 @@ login:
 user_edit:
   path: /user/edit
   controller: App\Controller\UserController::edit
-  methods: [POST]
+  methods: [PUT]
 
 # PROJECT CONTROLLER ROUTES
 
@@ -45,6 +45,11 @@ project_list:
   controller: App\Controller\ProjectController::projects
   methods: [GET]
 
+other_project_list:
+  path: /project/list_other
+  controller: App\Controller\ProjectController::otherProjects
+  methods: [GET]
+
 project_detail:
   path: /project/detail/{id}
   controller: App\Controller\ProjectController::project
@@ -54,3 +59,19 @@ project_remove:
   path: /project/remove/{id}
   controller: App\Controller\ProjectController::remove
   methods: [DELETE]
+
+# FOLLOWS ROUTES
+
+follow:
+  path: /follow
+  controller: App\Controller\FollowController::index
+
+follow_match:
+  path: /follow/match/{id}
+  controller: App\Controller\FollowController::onMatch
+  methods: [GET]
+
+follow_check_match:
+  path: /follow/check
+  controller: App\Controller\FollowController::checkMatch
+  methods: [GET]

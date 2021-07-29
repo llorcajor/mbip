@@ -276,4 +276,59 @@ class ProjectController extends AbstractController
 
         return $this->resjson($data);
     }
+
+    public function otherProjects(Request $request, JwtAuth $jwt_auth, PaginatorInterface $paginator)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'No se pueden listar los proyectos'
+        ];
+        // Reecoger la cabecera de autenticación
+        $token = $request->headers->get('Authorization');
+
+        // Comprobar token
+        $authCheck = $jwt_auth->checkToken($token);
+
+        if ($authCheck) {
+            // Conseguir identidad usuario
+            $identity = $jwt_auth->checkToken($token, true);
+
+            $em = $this->getDoctrine()->getManager();
+
+            // Configurar el bundle de paginacion
+            $dql = "SELECT v FROM App\Entity\Project v WHERE v.user != {$identity->sub} ORDER BY v.id DESC";
+            $query = $em->createQuery($dql);
+
+
+
+
+
+            // Hacer consulta paginacion
+            $page = $request->query->getInt('page', 1);
+            $items_per_page = 5;
+
+            // recoger el parametro page de la url
+
+            // Invocar paginacion
+            $pagination = $paginator->paginate($query, $page, $items_per_page);
+            $total = $pagination->getTotalItemCount();
+            // Preparar array para enviar
+            $data = [
+                'status' => 'successs',
+                'code' => 200,
+                'total_items_count' => $total,
+                'page_actual' => $page,
+                'items_per_page' => $items_per_page,
+                'total_page' => ceil($total / $items_per_page),
+                'projects' => $pagination,
+                'user_id' => $identity->sub
+
+            ];
+        }
+
+
+
+        return $this->resjson($data);
+    }
 }
