@@ -177,7 +177,7 @@ class ProjectController extends AbstractController
 
             // Hacer consulta paginacion
             $page = $request->query->getInt('page', 1);
-            $items_per_page = 5;
+            $items_per_page = 3;
 
             // recoger el parametro page de la url
 
@@ -209,7 +209,7 @@ class ProjectController extends AbstractController
         $data = [
             'status' => 'error',
             'code' => 404,
-            'message' => 'Video no encontrado',
+            'message' => 'Proyecto no encontrado',
             'id' => $id
         ];
         // Sacar token
@@ -306,7 +306,7 @@ class ProjectController extends AbstractController
 
             // Hacer consulta paginacion
             $page = $request->query->getInt('page', 1);
-            $items_per_page = 5;
+            $items_per_page = 6;
 
             // recoger el parametro page de la url
 

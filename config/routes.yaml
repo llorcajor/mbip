@@ -24,6 +24,11 @@ user_edit:
   controller: App\Controller\UserController::edit
   methods: [PUT]
 
+user_detail:
+  path: /user/detail/{id}
+  controller: App\Controller\UserController::userDetail
+  methods: [GET]
+
 # PROJECT CONTROLLER ROUTES
 
 project:
@@ -74,4 +79,9 @@ follow_match:
 follow_check_match:
   path: /follow/check
   controller: App\Controller\FollowController::checkMatch
+  methods: [GET]
+
+follow_my_check_match:
+  path: /follow/mycheck
+  controller: App\Controller\FollowController::checkMyMatchs
   methods: [GET]

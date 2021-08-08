@@ -122,6 +122,41 @@ class FollowController extends AbstractController
 
             $em = $this->getDoctrine()->getManager();
 
+            $dql = "SELECT v FROM App\Entity\Follow v WHERE v.user != {$identity->sub} ORDER BY v.id DESC";
+            $query = $em->createQuery($dql);
+
+            $pagination = $paginator->paginate($query, 1, 5);
+
+
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Match traidos correctamente',
+                'query' => $pagination
+            ];
+        }
+
+        return $this->resjson($data);
+    }
+
+    public function checkMyMatchs(Request $request, JwtAuth $jwt_auth, PaginatorInterface $paginator)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Error al buscar los match'
+        ];
+
+        // Recoger el token
+        $token = $request->headers->get('Authorization', null);
+        // Comprobar si es correcto
+        $authCheck = $jwt_auth->checkToken($token);
+
+        if ($authCheck) {
+            $identity = $jwt_auth->checkToken($token, true);
+
+            $em = $this->getDoctrine()->getManager();
+
             $dql = "SELECT v FROM App\Entity\Follow v WHERE v.user = {$identity->sub} ORDER BY v.id DESC";
             $query = $em->createQuery($dql);
 

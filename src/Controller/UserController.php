@@ -185,10 +185,12 @@ class UserController extends AbstractController
                 $name = (!empty($params->name)) ? $params->name : null;
                 $surname = (!empty($params->surname)) ? $params->surname : null;
                 $email = (!empty($params->email)) ? $params->email : null;
+                $image = (!empty($params->image)) ? $params->image : null;
                 // ASIGNAR NUEVOS DATOS AL OBJETO DEL USUARIO
                 $user->setEmail($email);
                 $user->setName($name);
                 $user->setSurname($surname);
+                $user->setImage($image);
                 // COMPROBAR DUPLICADOS
                 $isset_user = $user_repo->findBy([
                     'email' => $email
@@ -215,6 +217,36 @@ class UserController extends AbstractController
             }
         }
 
+
+        return $this->resjson($data);
+    }
+
+    public function userDetail(Request $request, JwtAuth $jwt_auth, $id = null)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Usuario no encontrado',
+            'id' => $id
+        ];
+        // Sacar token
+        $token = $request->headers->get('Authorization');
+        $authCheck = $jwt_auth->checkToken($token);
+        if ($authCheck) {
+
+            $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
+                'id' => $id
+            ]);
+            // Comprobar si el proyecto existe y es propiedad del usuario
+
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'user' => $user
+            ];
+        }
+
+        // Devolver una respuesta
 
         return $this->resjson($data);
     }
