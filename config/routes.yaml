@@ -85,3 +85,18 @@ follow_my_check_match:
   path: /follow/mycheck
   controller: App\Controller\FollowController::checkMyMatchs
   methods: [GET]
+
+follow_remove:
+  path: /follow/remove/{id}
+  controller: App\Controller\FollowController::remove
+  methods: [DELETE]
+
+# CATEGORY ROUTES
+category:
+  path: /category
+  controller: App\Controller\CategoryController::index
+
+category_all:
+  path: /category/all
+  controller: App\Controller\CategoryController::categories
+  methods: [GET]

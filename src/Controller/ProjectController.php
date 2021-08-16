@@ -79,6 +79,8 @@ class ProjectController extends AbstractController
                 $user_id = ($identity->sub != null) ? $identity->sub : null;
                 $title = (!empty($params->name)) ? $params->name : null;
                 $description = (!empty($params->description)) ? $params->description : null;
+                $category_id = (!empty($params->category)) ? $params->category : null;
+                $image = (!empty($params->imageUrl)) ? $params->imageUrl : null;
 
 
                 if (!empty($user_id) && !empty($title)) {
@@ -91,7 +93,7 @@ class ProjectController extends AbstractController
                     ]);
                     $category = new Category();
                     $category = $this->getDoctrine()->getRepository(Category::class)->findOneBy([
-                        'id' => 1
+                        'id' => $category_id
                     ]);
 
                     if ($id == null) {
@@ -100,6 +102,7 @@ class ProjectController extends AbstractController
                         $project->setName($title);
                         $project->setDescription($description);
                         $project->setCategory($category);
+                        $project->setImage($image);
 
                         $createdAt = new \DateTime('now');
                         $project->setCreatedAt($createdAt);

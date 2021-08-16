@@ -73,31 +73,47 @@ class FollowController extends AbstractController
 
             if ($id != null) {
                 $user_id = ($identity->sub != null) ? $identity->sub : null;
-                $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
-                    'id' => $user_id
+                $follow_created = $this->getDoctrine()->getRepository(Follow::class)->findOneBy([
+                    'user' => $user_id,
+                    'project' => $id
                 ]);
+                var_dump($follow_created);
 
-                $project = $this->getDoctrine()->getRepository(Project::class)->findOneBy([
-                    'id' => $id
-                ]);
+                if (!$follow_created) {
+                    $user = $this->getDoctrine()->getRepository(User::class)->findOneBy([
+                        'id' => $user_id
+                    ]);
+
+                    $project = $this->getDoctrine()->getRepository(Project::class)->findOneBy([
+                        'id' => $id
+                    ]);
 
 
 
 
-                $follow = new Follow();
-                $follow->setProject($project);
-                $follow->setUser($user);
-                $createdAt = new \DateTime('now');
-                $follow->setCreatedAt($createdAt);
+                    $follow = new Follow();
+                    $follow->setProject($project);
+                    $follow->setUser($user);
+                    $createdAt = new \DateTime('now');
+                    $follow->setCreatedAt($createdAt);
 
-                $em->persist($follow);
-                $em->flush();
+
+
+                    $em->persist($follow);
+                    $em->flush();
+
+                    $data = [
+                        'status' => 'success',
+                        'code' => 200,
+                        'message' => 'Match creado'
+                    ];
+                }
             }
 
             $data = [
-                'status' => 'success',
-                'code' => 200,
-                'message' => 'Match creado'
+                'status' => 'error',
+                'code' => 404,
+                'message' => 'Error al dar match'
             ];
         }
 
@@ -172,5 +188,71 @@ class FollowController extends AbstractController
         }
 
         return $this->resjson($data);
+    }
+
+    public function remove(Request $request, JwtAuth $jwt_auth, $id = null)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Follow no encontrado'
+        ];
+
+        $token = $request->headers->get('Authorization');
+
+        $authCheck = $jwt_auth->checkToken($token);
+
+        if ($authCheck) {
+            $identity = $jwt_auth->checkToken($token, true);
+
+            $doctrine = $this->getDoctrine();
+            $em = $doctrine->getManager();
+            $follow = $doctrine->getRepository(Follow::class)->findOneBy([
+                'id' => $id
+            ]);
+
+            if ($follow && is_object($follow)) {
+                $em->remove($follow);
+                $em->flush();
+
+                $data = [
+                    'status' => 'success',
+                    'code' => 200,
+                    'message' => 'Follow borrado'
+                ];
+            }
+        }
+
+
+
+
+        return $this->resjson($data);
+    }
+
+    public function sendMail(Request $request, JwtAuth $jwt_auth, $id = null)
+    {
+        $data = [
+            'status' => 'error',
+            'code' => 404,
+            'message' => 'Proyecto no encontrado'
+        ];
+
+        $token = $request->headers->get('Authorization');
+
+        $authCheck = $jwt_auth->checkToken($token);
+
+        if ($authCheck) {
+            $identity = $jwt_auth->checkToken($token, true);
+            $doctrine = $this->getDoctrine();
+            $em = $doctrine->getManager();
+
+            $user1 = $doctrine->getRepository(User::class)->findOneBy([
+                'id' => $identity->sub
+            ]);
+
+            $user2 = $doctrine->getRepository(User::class)->findOneBy([
+                'id' => $id
+            ]);
+        }
     }
 }
