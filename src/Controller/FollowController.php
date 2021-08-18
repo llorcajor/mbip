@@ -10,8 +10,11 @@ use App\Entity\User;
 use App\Entity\Project;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
-use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Mime\Email;
+// use Symfony\Component\Validator\Constraints\Email;
 use Symfony\Component\Validator\Validation;
 use App\Services\JwtAuth;
 use Doctrine\ORM\Mapping\PostRemove;
@@ -144,6 +147,8 @@ class FollowController extends AbstractController
             $pagination = $paginator->paginate($query, 1, 5);
 
 
+
+
             $data = [
                 'status' => 'success',
                 'code' => 200,
@@ -229,12 +234,13 @@ class FollowController extends AbstractController
         return $this->resjson($data);
     }
 
-    public function sendMail(Request $request, JwtAuth $jwt_auth, $id = null)
+    public function sendMail(Request $request, JwtAuth $jwt_auth, $id = null, MailerInterface $mailer)
     {
+
         $data = [
             'status' => 'error',
             'code' => 404,
-            'message' => 'Proyecto no encontrado'
+            'message' => 'Follow no encontrado'
         ];
 
         $token = $request->headers->get('Authorization');
@@ -242,17 +248,46 @@ class FollowController extends AbstractController
         $authCheck = $jwt_auth->checkToken($token);
 
         if ($authCheck) {
+
             $identity = $jwt_auth->checkToken($token, true);
+
             $doctrine = $this->getDoctrine();
             $em = $doctrine->getManager();
-
-            $user1 = $doctrine->getRepository(User::class)->findOneBy([
-                'id' => $identity->sub
-            ]);
-
-            $user2 = $doctrine->getRepository(User::class)->findOneBy([
+            $user = $doctrine->getRepository(User::class)->findOneBy([
                 'id' => $id
             ]);
+
+
+            $mail1 = $identity->email;
+
+            $mail2 = $user->getEmail();
+
+            $email = (new Email())
+                ->from('jjlltt75@gmail.com')
+                ->to($mail2)
+                //->bcc('bcc@example.com')
+                //->replyTo('fabien@example.com')
+                //->priority(Email::PRIORITY_HIGH)
+                ->subject('Match realizado en MBIP!')
+                ->text('Sending emails is fun again!')
+                ->html('<p>El usuario</p>' . $mail1 . '<p>ha aceptado la solicitud por el proyecto Name</p>');
+
+
+            try {
+                $mailer->send($email);
+            } catch (TransportExceptionInterface $e) {
+                // some error prevented the email sending; display an
+                // error message or try to resend the message
+            }
+
+            $data = [
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Email enviado'
+            ];
         }
+
+
+        return $this->resjson($data);
     }
 }

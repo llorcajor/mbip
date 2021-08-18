@@ -91,6 +91,11 @@ follow_remove:
   controller: App\Controller\FollowController::remove
   methods: [DELETE]
 
+mail:
+  path: /follow/mail/{id}
+  controller: App\Controller\FollowController::sendMail
+  methods: [GET]
+
 # CATEGORY ROUTES
 category:
   path: /category
