@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Category;
+use App\Entity\Follow;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use App\Entity\User;
@@ -263,8 +264,18 @@ class ProjectController extends AbstractController
             $project = $doctrine->getRepository(Project::class)->findOneBy([
                 'id' => $id
             ]);
+            $follows = $doctrine->getRepository(Follow::class)->findOneBy([
+                'project' => $id
+            ]);
+
+            if ($follows) {
+                $em->remove($follows);
+                $em->flush();
+                var_dump($follows);
+            }
 
             if ($project && is_object($project) && $identity->sub == $project->getUser()->getId()) {
+
                 $em->remove($project);
                 $em->flush();
 
