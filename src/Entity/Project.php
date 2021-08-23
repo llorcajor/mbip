@@ -155,7 +155,8 @@ class Project implements \JsonSerializable
             'description' => $this->description,
             'imageUrl' => $this->image,
             'category' => $this->category,
-            'user' => $this->user
+            'user' => $this->user,
+            'created_at' => $this->createdAt
         ];
     }
 }

@@ -129,6 +129,8 @@ class ProjectController extends AbstractController
                         if ($project && is_object($project)) {
                             $project->setName($title);
                             $project->setDescription($description);
+                            $project->setImage($image);
+                            $project->setCategory($category);
 
                             $em->persist($project);
                             $em->flush();
