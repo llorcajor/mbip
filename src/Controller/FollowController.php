@@ -265,19 +265,15 @@ class FollowController extends AbstractController
             $email = (new Email())
                 ->from('jjlltt75@gmail.com')
                 ->to($mail2)
-                //->bcc('bcc@example.com')
-                //->replyTo('fabien@example.com')
-                //->priority(Email::PRIORITY_HIGH)
                 ->subject('Match realizado en MBIP!')
                 ->text('Sending emails is fun again!')
-                ->html('<p>El usuario</p>' . $mail1 . '<p>ha aceptado la solicitud por el proyecto Name</p>');
+                ->html('<p>El usuario</p>' . $mail1 . '<p>ha aceptado la solicitud por tu proyecto</p>');
 
 
             try {
                 $mailer->send($email);
             } catch (TransportExceptionInterface $e) {
-                // some error prevented the email sending; display an
-                // error message or try to resend the message
+                // Error
             }
 
             $data = [
